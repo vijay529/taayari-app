@@ -23,7 +23,7 @@ const questionSchema = new mongoose.Schema({
     },
     duration:{
         type:Number,
-        default:60
+        default:60 // in seconds
     },
     createdAt:{
         type:Date,

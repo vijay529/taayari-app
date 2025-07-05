@@ -7,13 +7,10 @@ const ansSchema = new mongoose.Schema({
     ref:'Question',
     required:true
   },
-  selectedIndex:{
-    type:Number
-  },
-  answeredAt:{
-    type:Date,
-    default:Date.now
-  },
+  selectedIndex:Number,
+  correctIndex:Number,
+  startedAt:Date,
+  answeredAt:Date,
   duration:{
     type:Number //in seconds
   },
