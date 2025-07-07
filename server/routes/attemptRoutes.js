@@ -18,6 +18,8 @@ router.post('/startAttempt', auth,async(req,res,next)=>{
         if(!quiz){
             return res.status(404).json({error:"quiz not found"})
         }
+        const prevAttempt = await Attempt.findOne({userId:userId});
+
         const now = new Date();
         const expiresAt = new Date(now.getTime() + quiz.timeLimit*60*1000);
 
@@ -40,13 +42,37 @@ router.post('/startAttempt', auth,async(req,res,next)=>{
             }
         })
 
+        if(prevAttempt){
+            if(prevAttempt.status=='in-progress'){
+                const currAnsIndex = prevAttempt.currentQuestionIndex;
+                const currAns = prevAttempt.answers[currAnsIndex];
+                currAns.startedAt = now;
+                await prevAttempt.save();
+                const currQuestion = orderedQuestions[currAnsIndex];
+                return res.status(200).json({
+                    quizId:quiz._id,
+                    startedAt:prevAttempt.startedAt,
+                    expiresAt:prevAttempt.expiresAt,
+                    question:{
+                        id:currQuestion._id,
+                        title:currQuestion.title,
+                        options:currQuestion.options,
+                        duration:currQuestion.duration
+                    }
+                })
+                
+            }else{
+                return res.status(400).json({error:"already attempted"});
+            }    
+        }
+
         const attempt = new Attempt({
             userId:userId,
             quizId:quizId,
             answers:answers,
             startedAt:now,
             expiresAt,
-            currentQuestionIndex:0
+            currentQuestionIndex:0,
         });
         attempt.answers[attempt.currentQuestionIndex].startedAt=now;
         const firstQuestion = orderedQuestions[0]
