@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { mainDb } from '../config/db'; 
+import { mainDb } from '../config/db.js'; 
 import bcrypt from 'bcrypt'
 
 const userSchema = new mongoose.Schema({
@@ -19,14 +19,14 @@ const userSchema = new mongoose.Schema({
         maxLength: [20, "Username cannot exceed 20 characters"],
         trim:true,
         unique:true,
-        match:['/^[a-z0-9_]+$/',"Username can only contains lowercase letters, numbers and underscores"]
+        match:[/^[a-z0-9_]+$/,"Username can only contains lowercase letters, numbers and underscores"]
     },
     email:{
         type:String,
         required:[true,'Email is required'],
         unique: true,
         trim: true,
-        match:['/.+@.+\..+/','Please enter a valid email'],
+        match:[/.+@.+\..+/,'Please enter a valid email'],
         lowercase:true
     },
     password:{
@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema({
     refreshToken:String
 },{timestamps:true})
 
-userSchema.pre('save', async(next)=>{
+userSchema.pre('save', async function (next){
     if(!this.isModified('password')){
         return next()
     }

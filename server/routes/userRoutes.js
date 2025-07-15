@@ -2,25 +2,29 @@ import express from 'express'
 import User from '../models/User.model.js'
 import jwt from 'jsonwebtoken'
 import { ACCESSTOKEN, REFRESHTOKEN } from '../config/env.js'
+import { auth } from '../middleware/auth.js'
 
 const router = express.Router()
 
 router.post('/signup', async(req,res,next)=>{
     try {
-        const {email,password,username,name} = req.body;
+        const {email, password, username, name} = req.body;
 
-        const isValidField = [name,email,username,password].every((field)=>field&&field.trim()!=="");
+        const isValidField = [name, email, username, password].every((field)=>field&&field.trim()!=="");
 
         if(!isValidField){
             return res.status(400).json({error:"All fields are required"});
         }
-        const existingUser = await User({$or:[
+
+        const existingUser = await User.findOne({$or:[
             {email:email},
             {username:username}
         ]})
+
         if(existingUser){
             return res.status(401).json({error:"User already exists"});
         }
+
         const newUser = new User({
             name,email,password,username
         });
@@ -91,7 +95,6 @@ router.post('/signin', async(req,res,next)=>{
         })
         res.status(200).json({
             user:{
-                id:user._id,
                 username:user.username,
                 email:user.email,
                 role:user.role,
@@ -102,7 +105,7 @@ router.post('/signin', async(req,res,next)=>{
     }
 })
 
-router.post('/logout', async(req,res,next)=>{
+router.post('/logout', auth, async(req,res,next)=>{
     try {
         const {id} = req.user
         await User.findByIdAndUpdate(id, {
@@ -115,3 +118,7 @@ router.post('/logout', async(req,res,next)=>{
         next(error)
     }
 })
+
+
+
+export default router;

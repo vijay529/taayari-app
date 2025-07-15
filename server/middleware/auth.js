@@ -1,6 +1,6 @@
-import User from "../models/User.model"
+import User from "../models/User.model.js"
 import jwt from 'jsonwebtoken'
-import { ACCESSTOKEN, REFRESHTOKEN } from "../config/env";
+import { ACCESSTOKEN, REFRESHTOKEN } from "../config/env.js";
 
 //temporary auth method will be improved in future
 
